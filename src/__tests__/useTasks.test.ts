@@ -232,7 +232,7 @@ describe('useTasks', () => {
     await act(async () => {
       try {
         await result.current.addTask({ title: '' });
-      } catch (error) {
+      } catch {
         // Expected to throw
       }
     });

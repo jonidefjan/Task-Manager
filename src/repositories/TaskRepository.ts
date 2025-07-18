@@ -2,70 +2,90 @@
  * Repository pattern implementation for task persistence
  */
 
-import type { TaskEntity, TaskId } from '../types/core';
+import type { TaskEntity, TaskId, TaskStatus } from '../types/core';
 
-export interface TaskRepository {
+export interface TaskRepositoryInterface {
   findAll(): Promise<TaskEntity[]>;
   findById(id: TaskId): Promise<TaskEntity | null>;
-  save(tasks: readonly TaskEntity[]): Promise<void>;
+  save(task: TaskEntity): Promise<TaskEntity>;
+  delete(id: TaskId): Promise<boolean>;
   clear(): Promise<void>;
 }
 
-export class LocalStorageTaskRepository implements TaskRepository {
+export class TaskRepository implements TaskRepositoryInterface {
   private static readonly STORAGE_KEY = 'todoapp_tasks_v1';
-  private static readonly MAX_STORAGE_SIZE = 5 * 1024 * 1024; // 5MB
 
-  public async findAll(): Promise<TaskEntity[]> {
+  async findAll(): Promise<TaskEntity[]> {
     try {
-      const data = localStorage.getItem(LocalStorageTaskRepository.STORAGE_KEY);
-
+      const data = localStorage.getItem(TaskRepository.STORAGE_KEY);
       if (!data) {
         return [];
       }
 
-      const parsed = JSON.parse(data);
-
-      if (!Array.isArray(parsed)) {
-        console.warn('Invalid task data format in localStorage');
+      const tasks = JSON.parse(data);
+      if (!Array.isArray(tasks)) {
         return [];
       }
 
-      return parsed.map(this.deserializeTask).filter(Boolean) as TaskEntity[];
+      return tasks
+        .map(taskData => this.deserializeTask(taskData))
+        .filter((task): task is TaskEntity => task !== null);
     } catch (error) {
       console.error('Failed to load tasks from localStorage:', error);
       return [];
     }
   }
 
-  public async findById(id: TaskId): Promise<TaskEntity | null> {
+  async findById(id: TaskId): Promise<TaskEntity | null> {
     const tasks = await this.findAll();
-    return tasks.find(task => task.id === id) ?? null;
+    return tasks.find(task => task.id === id) || null;
   }
 
-  public async save(tasks: readonly TaskEntity[]): Promise<void> {
+  async save(task: TaskEntity): Promise<TaskEntity> {
+    const tasks = await this.findAll();
+    const existingIndex = tasks.findIndex(t => t.id === task.id);
+
+    if (existingIndex >= 0) {
+      tasks[existingIndex] = task;
+    } else {
+      tasks.push(task);
+    }
+
+    await this.persistTasks(tasks);
+    return task;
+  }
+
+  async delete(id: TaskId): Promise<boolean> {
+    const tasks = await this.findAll();
+    const initialLength = tasks.length;
+    const filteredTasks = tasks.filter(task => task.id !== id);
+
+    if (filteredTasks.length !== initialLength) {
+      await this.persistTasks(filteredTasks);
+      return true;
+    }
+
+    return false;
+  }
+
+  async clear(): Promise<void> {
     try {
-      const serialized = JSON.stringify(tasks.map(this.serializeTask));
-
-      if (serialized.length > LocalStorageTaskRepository.MAX_STORAGE_SIZE) {
-        throw new Error('Data exceeds maximum storage size');
-      }
-
-      localStorage.setItem(LocalStorageTaskRepository.STORAGE_KEY, serialized);
+      localStorage.removeItem(TaskRepository.STORAGE_KEY);
     } catch (error) {
-      if (error instanceof Error && error.name === 'QuotaExceededError') {
-        throw new Error('Storage quota exceeded. Please clear some tasks.');
-      }
-      throw new Error(
-        `Failed to save tasks: ${error instanceof Error ? error.message : 'Unknown error'}`
-      );
+      console.error('Failed to clear tasks from localStorage:', error);
+      throw new Error('Failed to clear tasks');
     }
   }
 
-  public async clear(): Promise<void> {
+  private async persistTasks(tasks: TaskEntity[]): Promise<void> {
     try {
-      localStorage.removeItem(LocalStorageTaskRepository.STORAGE_KEY);
-    } catch (error) {
-      console.error('Failed to clear tasks from localStorage:', error);
+      const serializedTasks = tasks.map(task => this.serializeTask(task));
+      localStorage.setItem(
+        TaskRepository.STORAGE_KEY,
+        JSON.stringify(serializedTasks)
+      );
+    } catch {
+      throw new Error('Failed to save tasks to localStorage');
     }
   }
 
@@ -79,33 +99,41 @@ export class LocalStorageTaskRepository implements TaskRepository {
     };
   }
 
-  private deserializeTask(data: any): TaskEntity | null {
+  private deserializeTask(data: unknown): TaskEntity | null {
     try {
       if (!this.isValidTaskData(data)) {
         return null;
       }
 
+      const taskData = data as {
+        id: string;
+        title: string;
+        status: string;
+        createdAt: string;
+        updatedAt: string;
+      };
+
       return {
-        id: data.id,
-        title: data.title,
-        status: data.status,
-        createdAt: new Date(data.createdAt),
-        updatedAt: new Date(data.updatedAt),
+        id: taskData.id,
+        title: taskData.title,
+        status: taskData.status as TaskStatus,
+        createdAt: new Date(taskData.createdAt),
+        updatedAt: new Date(taskData.updatedAt),
       };
     } catch {
       return null;
     }
   }
 
-  private isValidTaskData(data: any): boolean {
+  private isValidTaskData(data: unknown): boolean {
     return (
       typeof data === 'object' &&
       data !== null &&
-      typeof data.id === 'string' &&
-      typeof data.title === 'string' &&
-      (data.status === 'pending' || data.status === 'completed') &&
-      typeof data.createdAt === 'string' &&
-      typeof data.updatedAt === 'string'
+      typeof (data as Record<string, unknown>).id === 'string' &&
+      typeof (data as Record<string, unknown>).title === 'string' &&
+      typeof (data as Record<string, unknown>).status === 'string' &&
+      typeof (data as Record<string, unknown>).createdAt === 'string' &&
+      typeof (data as Record<string, unknown>).updatedAt === 'string'
     );
   }
 }
