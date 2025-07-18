@@ -1,0 +1,15 @@
+/* TaskForm styles */
+.task-form {
+  display: flex;
+  gap: 12px;
+  padding: 20px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.task-form-input-container {
+  flex: 1;
+}
+
+.task-form-submit {
+  flex-shrink: 0;
+}
