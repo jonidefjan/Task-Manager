@@ -50,13 +50,16 @@ export const TaskItem = ({
     setEditValue(task.title);
   }, [task.title, onCancelEdit]);
 
-  const handleKeyDown = useCallback((key: string) => {
-    if (key === 'Enter') {
-      handleSaveEdit();
-    } else if (key === 'Escape') {
-      handleCancelEdit();
-    }
-  }, [handleSaveEdit, handleCancelEdit]);
+  const handleKeyDown = useCallback(
+    (key: string) => {
+      if (key === 'Enter') {
+        handleSaveEdit();
+      } else if (key === 'Escape') {
+        handleCancelEdit();
+      }
+    },
+    [handleSaveEdit, handleCancelEdit]
+  );
 
   const itemStyles = {
     display: 'flex',
@@ -80,17 +83,13 @@ export const TaskItem = ({
   };
 
   return (
-    <div 
-      style={itemStyles}
-      className={className}
-      data-testid={testId}
-    >
+    <div style={itemStyles} className={className} data-testid={testId}>
       <Checkbox
         checked={isCompleted}
         onChange={handleToggle}
         testId={`${testId}-checkbox`}
       />
-      
+
       {isEditing ? (
         <div style={{ flex: 1, display: 'flex', gap: '8px' }}>
           <Input
@@ -101,16 +100,16 @@ export const TaskItem = ({
             testId={`${testId}-edit-input`}
           />
           <Button
-            variant="primary"
-            size="small"
+            variant='primary'
+            size='small'
             onClick={handleSaveEdit}
             testId={`${testId}-save`}
           >
             Save
           </Button>
           <Button
-            variant="secondary"
-            size="small"
+            variant='secondary'
+            size='small'
             onClick={handleCancelEdit}
             testId={`${testId}-cancel`}
           >
@@ -119,7 +118,7 @@ export const TaskItem = ({
         </div>
       ) : (
         <>
-          <span 
+          <span
             style={textStyles}
             onClick={handleStartEdit}
             data-testid={`${testId}-text`}
@@ -128,16 +127,16 @@ export const TaskItem = ({
           </span>
           <div style={actionsStyles}>
             <Button
-              variant="secondary"
-              size="small"
+              variant='secondary'
+              size='small'
               onClick={handleStartEdit}
               testId={`${testId}-edit`}
             >
               Edit
             </Button>
             <Button
-              variant="danger"
-              size="small"
+              variant='danger'
+              size='small'
               onClick={handleDelete}
               testId={`${testId}-delete`}
             >

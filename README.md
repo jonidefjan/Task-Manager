@@ -18,6 +18,7 @@ A modern, enterprise-grade task management application built with React 19, Type
 ## 🏗️ Architecture
 
 ### Component Structure
+
 ```
 src/
 ├── components/
@@ -60,17 +61,20 @@ src/
 ## 📦 Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/yourusername/enterprise-task-manager.git
    cd enterprise-task-manager
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Start development server**
+
    ```bash
    npm run dev
    ```
@@ -81,21 +85,25 @@ src/
 ## 🧪 Testing
 
 ### Run all tests
+
 ```bash
 npm test
 ```
 
 ### Run tests with coverage
+
 ```bash
 npm run test:coverage
 ```
 
 ### Run tests in watch mode
+
 ```bash
 npm run test:watch
 ```
 
 ### Test Results
+
 - **60 tests** covering all components and functionality
 - **100% coverage** on critical business logic
 - **Unit tests** for components, hooks, and services
@@ -104,33 +112,37 @@ npm run test:watch
 ## 🚀 Build & Deployment
 
 ### Production build
+
 ```bash
 npm run build
 ```
 
 ### Preview production build
+
 ```bash
 npm run preview
 ```
 
 ### Lint code
+
 ```bash
 npm run lint
 ```
 
 ## 📋 Available Scripts
 
-| Script | Description |
-|--------|-------------|
-| `npm run dev` | Start development server |
-| `npm run build` | Create production build |
+| Script            | Description              |
+| ----------------- | ------------------------ |
+| `npm run dev`     | Start development server |
+| `npm run build`   | Create production build  |
 | `npm run preview` | Preview production build |
-| `npm test` | Run test suite |
-| `npm run lint` | Run ESLint |
+| `npm test`        | Run test suite           |
+| `npm run lint`    | Run ESLint               |
 
 ## 🎯 Key Features
 
 ### Task Management
+
 - ✅ Create new tasks with validation
 - ✅ Mark tasks as complete/incomplete
 - ✅ Edit task titles inline
@@ -140,6 +152,7 @@ npm run lint
 - ✅ Persistent storage with localStorage
 
 ### User Experience
+
 - 🎨 Modern, clean interface
 - 📱 Fully responsive design
 - ⌨️ Keyboard navigation support
@@ -148,6 +161,7 @@ npm run lint
 - 💾 Auto-save functionality
 
 ### Developer Experience
+
 - 🔧 Hot module replacement
 - 🐛 Comprehensive error handling
 - 📊 Detailed test coverage
@@ -158,18 +172,21 @@ npm run lint
 ## 🏗️ Code Quality
 
 ### TypeScript Configuration
+
 - Strict mode enabled
 - No implicit any
 - Unused locals detection
 - Exact optional property types
 
 ### ESLint Rules
+
 - React hooks rules
 - TypeScript recommended
 - Import/export best practices
 - Accessibility guidelines
 
 ### Testing Strategy
+
 - Unit tests for all components
 - Integration tests for user flows
 - Mock implementations for external dependencies
